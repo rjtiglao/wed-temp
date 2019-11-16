@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
+
 require('dotenv').config();
 
 
@@ -9,7 +10,7 @@ const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: "PASSWORD_HERE",
+    password: `${process.env.SQL_AUTHORIZATION}`,
     database: "project_dashboard"
 
 });
@@ -24,8 +25,21 @@ const PORT = 8080;
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-app.post("/api/attendees", cors(), (req, res) => {
-    console.log(req.params.body);
+app.post("/api/attendees", (req, res) => {
+    let name = req.body.name;
+    let email = req.body.email;
+    let attending = req.body.attending;
+    
+    console.log("Inserting new guest into guest list...");
+
+    connection.query("INSERT INTO people SET ?",{
+        name: name,
+        email: email,
+        attending: attending
+    }, function(err, res){
+        if (err) throw err;
+        console.log(`${name}` + " has been inserted into the people table!")
+    })
 })
 
 
